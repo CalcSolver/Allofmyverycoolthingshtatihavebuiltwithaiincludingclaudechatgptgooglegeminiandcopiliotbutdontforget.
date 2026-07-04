@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACMemes Chat Room</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+</head>
+<body>
+
+    <div id="auth-container" class="auth-box">
+        <h2>Welcome to ACMemes</h2>
+        <form id="auth-form" onsubmit="event.preventDefault();">
+            <input type="email" id="email" placeholder="Email Address" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" id="submit-btn">Login</button>
+        </form>
+        <p id="toggle-auth">Don't have an account? <span id="toggle-link">Sign Up</span></p>
+    </div>
+
+    <div id="app-container" class="hidden" style="display: flex; height: 100vh; width: 100vw; overflow: hidden; background: #36393f;">
+        
+        <div class="sidebar" style="width: 260px; background: #2f3136; display: flex; flex-direction: column; padding: 15px; box-sizing: border-box; border-right: 1px solid #202225; color: #fff;">
+            <div id="my-profile-display" class="profile-header" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 15px; padding: 5px; border-radius: 4px; background: rgba(255,255,255,0.05);">
+                <img id="my-avatar" src="" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #5865f2;">
+                <div style="display: flex; flex-direction: column;">
+                    <span id="my-displayName" style="font-weight: bold; font-size: 14px;">Loading...</span>
+                    <span style="font-size: 11px; color: #b9bbbe;">Edit Profile ⚙️</span>
+                </div>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #444; margin-bottom: 15px;">
+            
+            <button id="target-public" class="target-btn active" style="width: 100%; padding: 10px; background: #4f545c; border: none; border-radius: 4px; color: #fff; text-align: left; cursor: pointer; margin-bottom: 15px;">🌐 Global Chat</button>
+            
+            <div class="search-box-container" style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <input type="text" id="search-user-input" placeholder="Search user email..." style="flex: 1; padding: 6px; border-radius: 4px; border: 1px solid #202225; background: #202225; color: #fff; font-size: 13px;">
+                <button id="search-user-btn" style="padding: 6px 10px; background: #5865f2; border: none; border-radius: 4px; color: #fff; cursor: pointer;">🔍</button>
+            </div>
+
+            <h4 style="margin: 10px 0 5px 0; font-size: 12px; text-transform: uppercase; color: #b9bbbe; letter-spacing: 0.5px;">⭐ My Friends List</h4>
+            <div id="friends-list" style="max-height: 120px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; margin-bottom: 15px;"></div>
+
+            <div class="server-creation-box" style="margin-bottom: 15px; padding: 10px; background: #202225; border-radius: 6px;">
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #b9bbbe;">Create a Server</h4>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="new-server-input" placeholder="Server Name..." style="flex: 1; padding: 5px; border-radius: 4px; border: none; background: #36393f; color: #fff; font-size: 12px;">
+                    <button id="create-server-btn" style="padding: 5px 10px; background: #3ba55d; border: none; border-radius: 4px; color: #fff; font-size: 12px; cursor: pointer; font-weight: bold;">+</button>
+                </div>
+            </div>
+
+            <div class="notification-center" style="margin-bottom: 15px; position: relative;">
+                <button id="noti-toggle-btn" style="width: 100%; padding: 8px; background: #202225; border: none; color: #fff; border-radius: 4px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+                    <span>🔔 System Alerts</span>
+                    <span id="noti-badge" style="background: #ed4245; color: #fff; padding: 2px 6px; border-radius: 10px; font-size: 11px; display: none;">0</span>
+                </button>
+                <div id="noti-dropdown" class="hidden" style="position: absolute; top: 100%; left: 0; right: 0; background: #202225; border: 1px solid #444; border-radius: 4px; max-height: 150px; overflow-y: auto; z-index: 100; padding: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                    <div id="noti-list" style="font-size: 12px; color: #dcddde; padding: 5px; text-align: center;">No new notifications</div>
+                </div>
+            </div>
+
+            <h4 style="margin: 10px 0 5px 0; font-size: 12px; text-transform: uppercase; color: #b9bbbe; letter-spacing: 0.5px;">Servers</h4>
+            <div id="servers-list" style="flex: 1; overflow-y: auto; margin-bottom: 10px; display: flex; flex-direction: column; gap: 4px;"></div>
+
+            <h4 style="margin: 10px 0 5px 0; font-size: 12px; text-transform: uppercase; color: #b9bbbe; letter-spacing: 0.5px;">Direct Messages</h4>
+            <div id="users-list" style="overflow-y: auto; max-height: 150px; display: flex; flex-direction: column; gap: 4px;"></div>
+            
+            <button id="logout-btn" style="width: 100%; padding: 8px; background: #ed4245; border: none; border-radius: 4px; color: #fff; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 13px;">Log Out</button>
+        </div>
+
+        <div id="messaging-container" class="chat-area" style="flex: 1; display: flex; flex-direction: column; background: #36393f; color: #fff; position: relative;">
+            <div class="chat-header" style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #2f3136; border-bottom: 1px solid #202225;">
+                <div>
+                    <h2 id="current-room-title" style="margin: 0; font-size: 18px; display: inline-block;">Global Chat</h2>
+                    <span id="server-admin-indicator" style="margin-left: 10px; font-size: 12px; color: #faa61a; font-weight: bold;"></span>
+                </div>
+                
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button id="disappear-toggle-btn" style="padding: 6px 12px; background: #4f545c; border: none; border-radius: 4px; color: #fff; font-size: 12px; cursor: pointer;">⏱️ Poof: OFF</button>
+                    <button id="call-btn" class="hidden" style="padding: 6px 12px; background: #3ba55d; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-weight: bold;">📞 Call User</button>
+                </div>
+            </div>
+            
+            <div id="chat-messages" class="messages-log" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column;"></div>
+            
+            <div id="giphy-drawer" class="hidden" style="background: #2f3136; border-top: 1px solid #202225; padding: 10px; max-height: 140px; overflow-x: auto; display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 11px; color: #b9bbbe; margin-left: 5px;">Trending Memes (Type in chat to search specific GIFs)</span>
+                <div id="giphy-results-container" style="display: flex; gap: 8px;"></div>
+            </div>
+
+            <div id="typing-indicator-box" class="typing-status" style="padding: 0 20px 5px 20px; font-size: 12px; color: #b9bbbe; height: 15px;"></div>
+
+            <form id="chat-form" class="input-row" style="padding: 0 20px 20px 20px; display: flex; gap: 10px;" onsubmit="event.preventDefault();">
+                <div style="display: flex; flex: 1; background: #40444b; border-radius: 8px; padding: 10px; align-items: center;">
+                    <label for="media-input" class="attach-label" style="cursor: pointer; font-size: 18px; margin-right: 10px; color: #b9bbbe;">📎</label>
+                    <input type="file" id="media-input" accept="image/*,video/*" style="display:none;">
+                    
+                    <button id="giphy-toggle-btn" type="button" style="background: none; border: none; font-size: 18px; cursor: pointer; margin-right: 10px; padding: 0;">👾</button>
+                    
+                    <input type="text" id="message-input" placeholder="Type a message or drop a file..." autocomplete="off" style="flex: 1; background: none; border: none; color: #fff; outline: none; font-size: 14px;">
+                </div>
+                <button type="submit" style="padding: 10px 20px; background: #5865f2; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10001;">
+        <div class="modal-content" style="background: #2f3136; padding: 25px; border-radius: 8px; color: #fff; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+            <div style="display: flex; justify-content: flex-end;">
+                <span id="close-profile-modal" style="cursor: pointer; font-size: 20px; font-weight: bold; line-height: 1;">&times;</span>
+            </div>
+            <img id="view-profile-avatar" src="" alt="User Avatar" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin: 10px auto; border: 3px solid #5865f2; display: block;">
+            <h3 id="view-profile-name" style="margin: 10px 0 5px 0;">Username</h3>
+            <p id="view-profile-email" style="font-size: 13px; color: #b9bbbe; margin: 0 0 20px 0;">user@email.com</p>
+            
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="dm-start-btn" style="background: #5865f2; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px;">Chat DM</button>
+                <button id="add-friend-btn" style="background: #3ba55d; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px;">Add Friend ⭐</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000;">
+        <div class="modal-content" style="background: #2f3136; padding: 25px; border-radius: 8px; color: #fff; width: 90%; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0;">Update Settings</h3>
+                <span id="close-settings-modal" style="cursor: pointer; font-size: 20px; font-weight: bold;">&times;</span>
+            </div>
+            <form id="settings-form" onsubmit="event.preventDefault();" style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label style="display: block; font-size: 12px; margin-bottom: 5px; color: #b9bbbe;">Display Name</label>
+                    <input type="text" id="settings-name-input" required style="width: 100%; padding: 8px; border-radius: 4px; border: none; background: #202225; color: #fff; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 12px; margin-bottom: 5px; color: #b9bbbe;">Custom Avatar Link (URL)</label>
+                    <input type="text" id="settings-avatar-input" placeholder="https://..." style="width: 100%; padding: 8px; border-radius: 4px; border: none; background: #202225; color: #fff; box-sizing: border-box;">
+                </div>
+                <button type="submit" style="background: #3ba55d; color: #fff; border: none; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 5px;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="video-call-modal" class="modal hidden" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div style="background: #2f3136; padding: 25px; border-radius: 12px; text-align: center; max-width: 700px; width: 90%;">
+            <h3 style="color: #fff; margin-top: 0; margin-bottom: 20px;">Live FaceTime Call</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                <div style="background: #111; border-radius: 8px; overflow: hidden; aspect-ratio: 4/3;">
+                    <video id="remote-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+                </div>
+                <div style="background: #111; border-radius: 8px; overflow: hidden; aspect-ratio: 4/3;">
+                    <video id="local-video" autoplay playsinline muted style="width: 100%; height: 100%; object-fit: cover;"></video>
+                </div>
+            </div>
+            <button id="end-call-btn" style="background: #ed4245; color: #fff; border: none; padding: 12px 35px; border-radius: 6px; font-weight: bold; cursor: pointer;">End Call ❌</button>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
