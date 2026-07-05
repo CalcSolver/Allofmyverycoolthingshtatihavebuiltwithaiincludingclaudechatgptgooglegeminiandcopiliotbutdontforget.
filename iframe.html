@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Workspace Dashboard</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background: #202225; display: flex; height: 100vh; overflow:hidden; font-family: sans-serif; }
+        .rail { width: 72px; background: #111214; display: flex; flex-direction: column; align-items: center; padding-top: 15px; gap: 12px; }
+        .icon { width: 48px; height: 48px; border-radius: 50%; background: #313338; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: 0.2s; }
+        .icon:hover, .icon.active { border-radius: 16px; background: #5865f2; color:#fff; }
+        .view-pane { flex: 1; height: 100%; position: relative; background: #313338; }
+        iframe { width: 100%; height: 100%; border: none; position: absolute; top:0; left:0; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="rail">
+        <div class="icon active" id="btn-chat" title="Discord Chat">💬</div>
+        <div class="icon" id="btn-arcade" title="Arcade Center">🎮</div>
+    </div>
+
+    <div class="view-pane">
+        <iframe id="frame-chat" src="chat.html"></iframe>
+        <iframe id="frame-arcade" src="arcade.html" class="hidden"></iframe>
+    </div>
+
+    <script>
+        const btnChat = document.getElementById('btn-chat');
+        const btnArcade = document.getElementById('btn-arcade');
+        const fChat = document.getElementById('frame-chat');
+        const fArcade = document.getElementById('frame-arcade');
+
+        btnChat.onclick = () => {
+            btnChat.classList.add('active'); btnArcade.classList.remove('active');
+            fChat.classList.remove('hidden'); fArcade.classList.add('hidden');
+        };
+        btnArcade.onclick = () => {
+            btnArcade.classList.add('active'); btnChat.classList.remove('active');
+            fArcade.classList.remove('hidden'); fChat.classList.add('hidden');
+        };
+    </script>
+</body>
+</html>
