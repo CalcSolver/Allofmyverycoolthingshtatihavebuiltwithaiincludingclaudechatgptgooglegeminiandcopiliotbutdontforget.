@@ -1,1 +1,1 @@
-# All of my very cool things that i have built with ai including claude chatgpt google gemini and co-piliot plus more
+# All of my very cool things that i have built with ai including claude chatgpt google gemini and co-piliot plus more. All of my good repos have the maximum amount of letters in the name bc only people i trust can get tghe link becuase no one is remembering a 132+ digit link
