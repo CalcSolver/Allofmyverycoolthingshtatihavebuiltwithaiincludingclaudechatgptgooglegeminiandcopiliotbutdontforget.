@@ -2,31 +2,163 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Console Gateway</title>
+    
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
-       (function(){ emailjs.init("6iGADKihYbPC4ecb_"); })();
+       (function(){
+          emailjs.init("6iGADKihYbPC4ecb_"); 
+       })();
     </script>
+
     <style>
         :root { 
-            --bg: #0d0e15; --card-bg: #161824; --accent: #6366f1; 
-            --accent-hover: #4f46e5; --text-main: #ffffff; --text-muted: #9ca3af; 
-            --input-bg: #1f2235; --border: #2d3142; --warning-bg: rgba(239, 68, 68, 0.1);
+            --bg: #0d0e15; 
+            --card-bg: #161824;
+            --accent: #6366f1; 
+            --accent-hover: #4f46e5;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af; 
+            --input-bg: #1f2235;
+            --border: #2d3142; 
+            --warning-bg: rgba(239, 68, 68, 0.1);
+            --warning-border: #ef4444;
         }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
-        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; font-family: sans-serif; }
-        #auth-overlay { display: flex; position: fixed; inset: 0; background: var(--bg); z-index: 10000; align-items: center; justify-content: center; }
-        .card { width: 380px; padding: 35px 25px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; text-align: center; }
-        input, textarea { width: 100%; padding: 14px 16px; margin-bottom: 16px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: #fff; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; background: var(--accent); color: white; font-weight: 600; cursor: pointer; }
+        body { background: var(--bg); color: #fff; overflow: hidden; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        /* AUTH MATRIX LAYOUT */
+        #auth-overlay { 
+            display: flex; 
+            position: fixed; 
+            inset: 0; 
+            background: var(--bg); 
+            z-index: 10000; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .card { 
+            width: 380px; 
+            padding: 35px 25px; 
+            background: var(--card-bg); 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            text-align: center; 
+            color: var(--text-main);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .card h2 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .warning-box {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            color: #fca5a5;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        input, textarea { 
+            width: 100%; 
+            padding: 14px 16px; 
+            margin-bottom: 16px; 
+            background: var(--input-bg); 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            color: #fff; 
+            font-size: 14px;
+        }
+        
+        textarea { height: 80px; resize: none; font-family: inherit; }
+        input:focus, textarea:focus { border-color: var(--accent); }
+
+        .btn { 
+            width: 100%; 
+            padding: 14px; 
+            border: none; 
+            border-radius: 8px; 
+            background: var(--accent); 
+            color: white; 
+            font-weight: 600; 
+            font-size: 15px;
+            cursor: pointer; 
+        }
         .btn:hover { background: var(--accent-hover); }
-        .toggle-link { margin-top: 20px; font-size: 13px; color: var(--text-muted); cursor: pointer; display: inline-block; }
-        #video-container { display: none; position: fixed; inset: 0; background: #000; z-index: 15000; align-items: center; justify-content: center; }
-        #login-video { width: 100%; height: 100%; object-fit: cover; }
-        .skip-video-btn { position: absolute; bottom: 30px; right: 30px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
-        #portal { display: none; position: fixed; inset: 0; background: var(--bg); }
-        iframe { width: 100%; height: 100%; border: none; }
+
+        .toggle-link {
+            margin-top: 20px; 
+            font-size: 13px; 
+            color: var(--text-muted); 
+            cursor: pointer;
+            display: inline-block;
+        }
+        .toggle-link:hover { color: var(--accent); }
+
+        /* --- ADDED: INTRO VIDEO OVERLAY ELEMENT --- */
+        #video-container {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 15000;
+            align-items: center;
+            justify-content: center;
+        }
+        #login-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .skip-video-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* VIEWPORT PLATFORM */
+        #portal { display: none; position: fixed; inset: 0; flex-direction: column; background: var(--bg); color: #fff; }
+        #nav { height: 70px; background: rgba(0,0,0,0.2); display: flex; align-items: center; padding: 0 25px; border-bottom: 1px solid var(--border); gap: 12px; }
+        .nav-logo { font-weight: 700; color: var(--accent); font-size: 20px; letter-spacing: 1px; }
+        
+        .nav-action-btn {
+            background: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 13px;
+            padding: 8px 16px;
+            transition: all 0.2s ease;
+        }
+        #refresh-btn { border: 1px solid var(--accent); color: var(--accent); }
+        #refresh-btn:hover { background: var(--accent); color: #fff; }
+        #logout-btn { border: 1px solid #ff4b4b; color: #ff4b4b; }
+        #logout-btn:hover { background: #ff4b4b; color: #fff; }
+        
+        iframe { flex: 1; border: none; width: 100%; height: 100%; }
+
+        @media (max-width: 600px) {
+            .card { width: 90%; padding: 30px 20px; }
+        }
     </style>
 </head>
 <body>
@@ -40,8 +172,10 @@
                 <button class="btn" id="login-btn">CONNECT</button>
                 <div onclick="toggleAuth(true)" class="toggle-link">Request Access</div>
             </div>
+
             <div id="reg-view" style="display:none">
                 <h2>ACCESS REQUEST</h2>
+                <div class="warning-box">⚠️ Notice: Do not use your real passwords</div>
                 <input type="email" id="r-email" placeholder="Email">
                 <input type="password" id="r-pass" placeholder="Password">
                 <textarea id="r-note" placeholder="Add a note..."></textarea>
@@ -57,6 +191,12 @@
     </div>
 
     <div id="portal">
+        <div id="nav">
+            <div class="nav-logo">M-TOOL</div>
+            <div style="flex:1"></div>
+            <button id="refresh-btn" class="nav-action-btn">REFRESH ARCADE</button>
+            <button id="logout-btn" class="nav-action-btn" onclick="location.reload()">LOGOUT</button>
+        </div>
         <iframe id="portal-frame" src="about:blank" allowfullscreen></iframe>
     </div>
 
@@ -78,46 +218,102 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Keep Arcade.html inside the frame, while your Chat stays running natively!
+        const authenticatedUrlCache = "Arcade.html"; 
+
         window.toggleAuth = (isReg) => {
             document.getElementById('login-view').style.display = isReg ? 'none' : 'block';
             document.getElementById('reg-view').style.display = isReg ? 'block' : 'none';
         };
 
+        function isInvalidPattern(password) {
+            const cleanPass = password.trim().toLowerCase();
+            const basicPattern = /^[a-z]+\d{2}$/;
+            return basicPattern.test(cleanPass);
+        }
+
+        // Access Request Form Actions (Saves request, sends you email notification)
         document.getElementById('submit-req').onclick = async () => {
             const email = document.getElementById('r-email').value.trim();
             const pass = document.getElementById('r-pass').value;
             const note = document.getElementById('r-note').value.trim();
+
+            if(!email || !pass) return alert("Fields cannot be empty.");
+            if (pass.length < 6) return alert("Password must be at least 6 characters.");
+            if (isInvalidPattern(pass)) {
+                return alert("Security policy error: Choose a more complex password pattern.");
+            }
+
             try {
-                await addDoc(collection(db, "requests"), { email, pass, note, time: serverTimestamp() });
-                await emailjs.send("service_06y4hgi", "template_56l2irz", { user_email: email, user_pass: pass, user_note: note });
-                alert("Request Sent!"); toggleAuth(false);
+                await addDoc(collection(db, "requests"), {
+                    email: email,
+                    pass: pass,
+                    note: note,
+                    time: serverTimestamp()
+                });
+                
+                await emailjs.send("service_06y4hgi", "template_56l2irz", {
+                    user_email: email,
+                    user_pass: pass,
+                    user_note: note
+                });
+
+                alert("Request Sent!");
+                toggleAuth(false);
             } catch (e) { alert("Error: " + e.message); }
         };
 
+        // Verification Login Submission & Video Controller Hook
         document.getElementById('login-btn').onclick = async () => {
             const email = document.getElementById('l-email').value.trim();
             const pass = document.getElementById('l-pass').value;
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-                // Save the session details inside window storage so inner scripts read it automatically!
-                localStorage.setItem("portal_user", JSON.stringify({ email: userCredential.user.email }));
 
+            try {
+                // Logs user into Firebase Auth
+                await signInWithEmailAndPassword(auth, email, pass);
+
+                // Hide the login modal box
                 document.getElementById('auth-overlay').style.display = 'none';
+
+                // Display video player container screen
                 const vidContainer = document.getElementById('video-container');
                 const videoEl = document.getElementById('login-video');
                 
                 vidContainer.style.display = 'flex';
-                videoEl.play().catch(() => revealPortalLayout());
+                videoEl.play().catch(err => {
+                    revealPortalLayout();
+                });
+
+                // Move past video when it stops playing
                 videoEl.onended = revealPortalLayout;
+
+                // Move past video if clicked manually
                 document.getElementById('skip-vid').onclick = revealPortalLayout;
 
                 function revealPortalLayout() {
                     videoEl.pause();
                     vidContainer.style.display = 'none';
-                    document.getElementById('portal-frame').src = "iframe.html";
-                    document.getElementById('portal').style.display = 'block';
+                    document.getElementById('portal-frame').src = authenticatedUrlCache;
+                    document.getElementById('portal').style.display = 'flex';
+                    
+                    // Trigger your custom chat interface logic inside app.js if needed!
+                    if (window.initializeDiscordChat) {
+                        window.initializeDiscordChat(email);
+                    }
                 }
-            } catch (e) { alert("Access Denied: " + e.message); }
+
+            } catch (e) { 
+                alert("Access Denied: " + e.message); 
+            }
+        };
+
+        // Frame View Reload Tool
+        document.getElementById('refresh-btn').onclick = () => {
+            const frame = document.getElementById('portal-frame');
+            frame.src = "about:blank";
+            setTimeout(() => {
+                frame.src = authenticatedUrlCache;
+            }, 100);
         };
     </script>
 </body>
